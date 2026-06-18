@@ -10,6 +10,7 @@
   "dependencies": {
     "@supabase/ssr": "^0.10.3",
     "@supabase/supabase-js": "^2.106.2",
+    "africastalking": "^0.8.0",
     "browser-image-compression": "^2.0.2",
     "idb": "^8.0.3",
     "libphonenumber-js": "^1.13.4",
