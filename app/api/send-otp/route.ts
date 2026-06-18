@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
     
     await client.SMS.send({
       to: [phone],
-      message: Votre code Texus: ${otp},
+      message: 'Votre code Texus: ' + otp,
       from: 'Texus',
     })
     
