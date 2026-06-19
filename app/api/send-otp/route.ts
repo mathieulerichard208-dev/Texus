@@ -20,7 +20,8 @@ export async function POST(req: NextRequest) {
     })
     
     const data = await response.json()
-    return NextResponse.json({ success: true, otp, data })
+    console.log('OTP:', otp, 'Response:', JSON.stringify(data))
+    return NextResponse.json({ success: true, otp })
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
