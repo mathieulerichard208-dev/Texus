@@ -21,23 +21,17 @@ const countries = [
   { code: '+254', flag: '🇰🇪', name: 'Kenya' },
   { code: '+233', flag: '🇬🇭', name: 'Ghana' },
   { code: '+27', flag: '🇿🇦', name: 'Afrique du Sud' },
-  { code: '+251', flag: '🇪🇹', name: 'Ethiopie' },
-  { code: '+255', flag: '🇹🇿', name: 'Tanzanie' },
-  { code: '+256', flag: '🇺🇬', name: 'Ouganda' },
   { code: '+33', flag: '🇫🇷', name: 'France' },
   { code: '+32', flag: '🇧🇪', name: 'Belgique' },
-  { code: '+41', flag: '🇨🇭', name: 'Suisse' },
   { code: '+1', flag: '🇺🇸', name: 'USA' },
   { code: '+44', flag: '🇬🇧', name: 'Royaume-Uni' },
-  { code: '+49', flag: '🇩🇪', name: 'Allemagne' },
-  { code: '+39', flag: '🇮🇹', name: 'Italie' },
-  { code: '+34', flag: '🇪🇸', name: 'Espagne' },
 ]
 
 export default function AuthPage() {
   const [country, setCountry] = useState(countries[0])
   const [phone, setPhone] = useState('')
   const [code, setCode] = useState('')
+  const [otp, setOtp] = useState('')
   const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
@@ -52,12 +46,22 @@ export default function AuthPage() {
     })
     const data = await res.json()
     if (data.success) {
+      setOtp(data.otp)
       setStep(2)
-      setMessage('Code envoyé sur ' + fullPhone)
+      setMessage('Code envoyé !')
     } else {
-      setMessage('Erreur: ' + (data.error || 'Réessayez'))
+      setMessage('Erreur - réessayez')
     }
     setLoading(false)
+  }
+
+  function verifyOtp() {
+    if (code === otp) {
+      setMessage('Connexion réussie ! Bienvenue sur Texus !')
+      setStep(3)
+    } else {
+      setMessage('Code incorrect - réessayez')
+    }
   }
 
   return (
@@ -66,7 +70,7 @@ export default function AuthPage() {
         <div style={{fontSize:'28px',fontWeight:700,color:'#fff',textAlign:'center',marginBottom:'32px'}}>
           Tex<span style={{color:'#5b8dff'}}>us</span>
         </div>
-        {step===1 ? (
+        {step===1 && (
           <>
             <div style={{display:'flex',gap:'8px',marginBottom:'12px'}}>
               <select
@@ -89,9 +93,10 @@ export default function AuthPage() {
               {loading ? 'Envoi...' : 'Recevoir le code SMS'}
             </button>
           </>
-        ) : (
+        )}
+        {step===2 && (
           <>
-            <p style={{color:'#aaa',textAlign:'center',marginBottom:'16px'}}>{message}</p>
+            <p style={{color:'#aaa',textAlign:'center',marginBottom:'16px'}}>Entre le code reçu</p>
             <input
               type="text"
               value={code}
@@ -99,12 +104,19 @@ export default function AuthPage() {
               placeholder="123456"
               style={{width:'100%',background:'#1a1d2e',border:'1px solid #222640',borderRadius:'10px',padding:'12px',fontSize:'14px',color:'#fff',boxSizing:'border-box'}}
             />
-            <button style={{width:'100%',background:'#5b8dff',color:'#fff',border:'none',borderRadius:'12px',padding:'13px',fontSize:'14px',fontWeight:600,cursor:'pointer',marginTop:'12px'}}>
+            <button onClick={verifyOtp} style={{width:'100%',background:'#5b8dff',color:'#fff',border:'none',borderRadius:'12px',padding:'13px',fontSize:'14px',fontWeight:600,cursor:'pointer',marginTop:'12px'}}>
               Confirmer le code
             </button>
           </>
         )}
-        {message && step===1 && <p style={{color:'red',textAlign:'center',marginTop:'12px',fontSize:'13px'}}>{message}</p>}
+        {step===3 && (
+          <div style={{textAlign:'center'}}>
+            <div style={{fontSize:'48px'}}>🎉</div>
+            <p style={{color:'#5b8dff',fontSize:'18px',fontWeight:600}}>Bienvenue sur Texus !</p>
+            <p style={{color:'#aaa'}}>Connexion réussie</p>
+          </div>
+        )}
+        {message && step!==3 && <p style={{color: step===2 && message.includes('incorrect') ? 'red' : '#5b8dff',textAlign:'center',marginTop:'12px',fontSize:'13px'}}>{message}</p>}
       </div>
     </main>
   )
