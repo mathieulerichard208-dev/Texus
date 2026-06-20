@@ -22,6 +22,7 @@ export default function AuthPage() {
   const [phone, setPhone] = useState('')
   const [code, setCode] = useState('')
   const [otp, setOtp] = useState('')
+  const [username, setUsername] = useState('')
   const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
@@ -47,10 +48,20 @@ export default function AuthPage() {
 
   function verifyOtp() {
     if (code === otp) {
-      router.push('/discussions')
+      setMessage('')
+      setStep(3)
     } else {
       setMessage('Code incorrect - réessayez')
     }
+  }
+
+  function finishSignup() {
+    if (username.trim().length < 2) {
+      setMessage('Choisis un nom valide')
+      return
+    }
+    localStorage.setItem('texus_username', username)
+    router.push('/discussions')
   }
 
   return (
@@ -95,6 +106,21 @@ export default function AuthPage() {
             />
             <button onClick={verifyOtp} style={{width:'100%',background:'#5b8dff',color:'#fff',border:'none',borderRadius:'12px',padding:'13px',fontSize:'14px',fontWeight:600,cursor:'pointer',marginTop:'12px'}}>
               Confirmer le code
+            </button>
+          </>
+        )}
+        {step===3 && (
+          <>
+            <p style={{color:'#aaa',textAlign:'center',marginBottom:'16px'}}>Choisis ton nom d'utilisateur</p>
+            <input
+              type="text"
+              value={username}
+              onChange={e => setUsername(e.target.value)}
+              placeholder="Ton nom"
+              style={{width:'100%',background:'#1a1d2e',border:'1px solid #222640',borderRadius:'10px',padding:'12px',fontSize:'14px',color:'#fff',boxSizing:'border-box'}}
+            />
+            <button onClick={finishSignup} style={{width:'100%',background:'#5b8dff',color:'#fff',border:'none',borderRadius:'12px',padding:'13px',fontSize:'14px',fontWeight:600,cursor:'pointer',marginTop:'12px'}}>
+              Commencer
             </button>
           </>
         )}
