@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 
 const countries = [
   { code: '+229', flag: '🇧🇯', name: 'Bénin' },
@@ -11,23 +12,12 @@ const countries = [
   { code: '+227', flag: '🇳🇪', name: 'Niger' },
   { code: '+228', flag: '🇹🇬', name: 'Togo' },
   { code: '+237', flag: '🇨🇲', name: 'Cameroun' },
-  { code: '+241', flag: '🇬🇦', name: 'Gabon' },
-  { code: '+242', flag: '🇨🇬', name: 'Congo' },
-  { code: '+243', flag: '🇨🇩', name: 'RD Congo' },
-  { code: '+212', flag: '🇲🇦', name: 'Maroc' },
-  { code: '+213', flag: '🇩🇿', name: 'Algérie' },
-  { code: '+216', flag: '🇹🇳', name: 'Tunisie' },
-  { code: '+20', flag: '🇪🇬', name: 'Egypte' },
-  { code: '+254', flag: '🇰🇪', name: 'Kenya' },
-  { code: '+233', flag: '🇬🇭', name: 'Ghana' },
-  { code: '+27', flag: '🇿🇦', name: 'Afrique du Sud' },
   { code: '+33', flag: '🇫🇷', name: 'France' },
-  { code: '+32', flag: '🇧🇪', name: 'Belgique' },
   { code: '+1', flag: '🇺🇸', name: 'USA' },
-  { code: '+44', flag: '🇬🇧', name: 'Royaume-Uni' },
 ]
 
 export default function AuthPage() {
+  const router = useRouter()
   const [country, setCountry] = useState(countries[0])
   const [phone, setPhone] = useState('')
   const [code, setCode] = useState('')
@@ -57,8 +47,7 @@ export default function AuthPage() {
 
   function verifyOtp() {
     if (code === otp) {
-      setMessage('Connexion réussie ! Bienvenue sur Texus !')
-      setStep(3)
+      router.push('/chat')
     } else {
       setMessage('Code incorrect - réessayez')
     }
@@ -109,14 +98,7 @@ export default function AuthPage() {
             </button>
           </>
         )}
-        {step===3 && (
-          <div style={{textAlign:'center'}}>
-            <div style={{fontSize:'48px'}}>🎉</div>
-            <p style={{color:'#5b8dff',fontSize:'18px',fontWeight:600}}>Bienvenue sur Texus !</p>
-            <p style={{color:'#aaa'}}>Connexion réussie</p>
-          </div>
-        )}
-        {message && step!==3 && <p style={{color: step===2 && message.includes('incorrect') ? 'red' : '#5b8dff',textAlign:'center',marginTop:'12px',fontSize:'13px'}}>{message}</p>}
+        {message && <p style={{color:'red',textAlign:'center',marginTop:'12px',fontSize:'13px'}}>{message}</p>}
       </div>
     </main>
   )
