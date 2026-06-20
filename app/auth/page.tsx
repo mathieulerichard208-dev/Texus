@@ -47,7 +47,7 @@ export default function AuthPage() {
 
   function verifyOtp() {
     if (code === otp) {
-      router.push('/chat')
+      router.push('/discussions')
     } else {
       setMessage('Code incorrect - réessayez')
     }
