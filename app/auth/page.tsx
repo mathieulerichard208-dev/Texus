@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 
 const countries = [
@@ -18,11 +18,13 @@ const countries = [
 
 export default function AuthPage() {
   const router = useRouter()
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const [country, setCountry] = useState(countries[0])
   const [phone, setPhone] = useState('')
   const [code, setCode] = useState('')
   const [otp, setOtp] = useState('')
   const [username, setUsername] = useState('')
+  const [avatar, setAvatar] = useState<string | null>(null)
   const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
@@ -55,12 +57,32 @@ export default function AuthPage() {
     }
   }
 
-  function finishSignup() {
+  function goToUsername() {
     if (username.trim().length < 2) {
       setMessage('Choisis un nom valide')
       return
     }
+    setMessage('')
+    setStep(4)
+  }
+
+  function handlePhotoClick() {
+    fileInputRef.current?.click()
+  }
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onload = () => setAvatar(reader.result as string)
+      reader.readAsDataURL(file)
+    }
+  }
+
+  function finishSignup() {
     localStorage.setItem('texus_username', username)
+    if (avatar) localStorage.setItem('texus_avatar', avatar)
+    localStorage.setItem('texus_phone', country.code + phone.replace(/\s/g, ''))
     router.push('/discussions')
   }
 
@@ -119,8 +141,26 @@ export default function AuthPage() {
               placeholder="Ton nom"
               style={{width:'100%',background:'#1a1d2e',border:'1px solid #222640',borderRadius:'10px',padding:'12px',fontSize:'14px',color:'#fff',boxSizing:'border-box'}}
             />
-            <button onClick={finishSignup} style={{width:'100%',background:'#5b8dff',color:'#fff',border:'none',borderRadius:'12px',padding:'13px',fontSize:'14px',fontWeight:600,cursor:'pointer',marginTop:'12px'}}>
-              Commencer
+            <button onClick={goToUsername} style={{width:'100%',background:'#5b8dff',color:'#fff',border:'none',borderRadius:'12px',padding:'13px',fontSize:'14px',fontWeight:600,cursor:'pointer',marginTop:'12px'}}>
+              Continuer
+            </button>
+          </>
+        )}
+        {step===4 && (
+          <>
+            <p style={{color:'#aaa',textAlign:'center',marginBottom:'20px'}}>Ajoute une photo de profil</p>
+            <div style={{display:'flex',justifyContent:'center',marginBottom:'20px'}}>
+              <div onClick={handlePhotoClick} style={{width:'100px',height:'100px',borderRadius:'50%',background:'#1a1d2e',border:'2px dashed #333',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',overflow:'hidden'}}>
+                {avatar ? (
+                  <img src={avatar} alt="avatar" style={{width:'100%',height:'100%',objectFit:'cover'}} />
+                ) : (
+                  <span style={{fontSize:'32px',color:'#555'}}>📷</span>
+                )}
+              </div>
+            </div>
+            <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} style={{display:'none'}} />
+            <button onClick={finishSignup} style={{width:'100%',background:'#5b8dff',color:'#fff',border:'none',borderRadius:'12px',padding:'13px',fontSize:'14px',fontWeight:600,cursor:'pointer'}}>
+              {avatar ? 'Commencer' : 'Ignorer'}
             </button>
           </>
         )}
