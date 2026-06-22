@@ -57,7 +57,7 @@ export default function AuthPage() {
     }
   }
 
-  function goToUsername() {
+  function goToPhoto() {
     if (username.trim().length < 2) {
       setMessage('Choisis un nom valide')
       return
@@ -141,7 +141,7 @@ export default function AuthPage() {
               placeholder="Ton nom"
               style={{width:'100%',background:'#1a1d2e',border:'1px solid #222640',borderRadius:'10px',padding:'12px',fontSize:'14px',color:'#fff',boxSizing:'border-box'}}
             />
-            <button onClick={goToUsername} style={{width:'100%',background:'#5b8dff',color:'#fff',border:'none',borderRadius:'12px',padding:'13px',fontSize:'14px',fontWeight:600,cursor:'pointer',marginTop:'12px'}}>
+            <button onClick={goToPhoto} style={{width:'100%',background:'#5b8dff',color:'#fff',border:'none',borderRadius:'12px',padding:'13px',fontSize:'14px',fontWeight:600,cursor:'pointer',marginTop:'12px'}}>
               Continuer
             </button>
           </>
