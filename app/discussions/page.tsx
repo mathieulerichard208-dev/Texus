@@ -19,6 +19,18 @@ export default function DiscussionsPage() {
   const [search, setSearch] = useState('')
   const [tab, setTab] = useState('discussions')
 
+  function handleTab(id: string) {
+    if (id === 'reglages') {
+      router.push('/reglages')
+      return
+    }
+    if (id === 'publications') {
+      router.push('/publications')
+      return
+    }
+    setTab(id)
+  }
+
   return (
     <main style={{height:'100vh',background:'#0d0f14',display:'flex',flexDirection:'column',fontFamily:'sans-serif',overflow:'hidden'}}>
       <div style={{background:'#10121a',padding:'16px',borderBottom:'1px solid #1a1d2e',display:'flex',justifyContent:'space-between',alignItems:'center',flexShrink:0}}>
@@ -32,7 +44,7 @@ export default function DiscussionsPage() {
 
       <div style={{display:'flex',background:'#10121a',borderBottom:'1px solid #1a1d2e',overflowX:'auto',flexShrink:0}}>
         {tabs.map(t => (
-          <button key={t.id} onClick={() => setTab(t.id)} style={{flex:'0 0 auto',padding:'10px 14px',background:'none',border:'none',borderBottom: tab===t.id ? '2px solid #5b8dff' : '2px solid transparent',color: tab===t.id ? '#5b8dff' : '#888',fontSize:'12px',cursor:'pointer',whiteSpace:'nowrap'}}>
+          <button key={t.id} onClick={() => handleTab(t.id)} style={{flex:'0 0 auto',padding:'10px 14px',background:'none',border:'none',borderBottom: tab===t.id ? '2px solid #5b8dff' : '2px solid transparent',color: tab===t.id ? '#5b8dff' : '#888',fontSize:'12px',cursor:'pointer',whiteSpace:'nowrap'}}>
             <div style={{fontSize:'18px'}}>{t.icon}</div>{t.label}
           </button>
         ))}
