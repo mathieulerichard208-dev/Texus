@@ -2,6 +2,15 @@
 import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 
+const bottomNav = [
+  { id: 'discussions', icon: '💬', label: 'Discussions', path: '/discussions' },
+  { id: 'statuts', icon: '⭕', label: 'Statuts', path: '/statuts' },
+  { id: 'appels', icon: '📞', label: 'Appels', path: '/appels' },
+  { id: 'publicite', icon: '🎬', label: 'Publicité', path: '/publications' },
+  { id: 'contacts', icon: '👥', label: 'Contacts', path: '/contacts' },
+  { id: 'reglages', icon: '⚙️', label: 'Réglages', path: '/reglages' },
+]
+
 export default function StatutsPage() {
   const router = useRouter()
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -38,14 +47,13 @@ export default function StatutsPage() {
   }
 
   return (
-    <main style={{minHeight:'100vh',background:'#0d0f14',fontFamily:'sans-serif'}}>
-      <div style={{background:'#10121a',padding:'16px',borderBottom:'1px solid #1a1d2e',display:'flex',alignItems:'center',justifyContent:'space-between',position:'sticky',top:0}}>
-        <button onClick={() => router.push('/discussions')} style={{background:'none',border:'none',color:'#5b8dff',fontSize:'20px',cursor:'pointer'}}>←</button>
-        <div style={{fontSize:'18px',fontWeight:700,color:'#fff'}}>Statuts</div>
+    <main style={{height:'100vh',background:'#0d0f14',display:'flex',flexDirection:'column',fontFamily:'sans-serif',overflow:'hidden'}}>
+      <div style={{background:'#10121a',padding:'16px',borderBottom:'1px solid #1a1d2e',display:'flex',alignItems:'center',justifyContent:'space-between',flexShrink:0}}>
+        <div style={{fontSize:'22px',fontWeight:700,color:'#fff'}}>Tex<span style={{color:'#5b8dff'}}>us</span></div>
         <div style={{width:'36px'}}></div>
       </div>
 
-      <div style={{display:'flex',background:'#10121a',borderBottom:'1px solid #1a1d2e'}}>
+      <div style={{display:'flex',background:'#10121a',borderBottom:'1px solid #1a1d2e',flexShrink:0}}>
         <button onClick={() => setTab('statuts')} style={{flex:1,padding:'12px',background:'none',border:'none',borderBottom: tab==='statuts' ? '2px solid #5b8dff' : '2px solid transparent',color: tab==='statuts' ? '#5b8dff' : '#888',fontSize:'13px',cursor:'pointer'}}>
           Statuts
         </button>
@@ -54,11 +62,11 @@ export default function StatutsPage() {
         </button>
       </div>
 
-      {tab === 'statuts' && (
-        <div style={{padding:'16px'}}>
-          <div style={{marginBottom:'24px'}}>
+      <div style={{flex:1,overflowY:'auto'}}>
+        {tab === 'statuts' && (
+          <div style={{padding:'16px'}}>
             <p style={{color:'#888',fontSize:'12px',marginBottom:'12px'}}>MON STATUT</p>
-            <div style={{display:'flex',alignItems:'center',gap:'12px'}}>
+            <div style={{display:'flex',alignItems:'center',gap:'12px',marginBottom:'24px'}}>
               <div onClick={() => fileInputRef.current?.click()} style={{position:'relative',cursor:'pointer'}}>
                 <div style={{width:'56px',height:'56px',borderRadius:'50%',background:'#1a1d2e',display:'flex',alignItems:'center',justifyContent:'center',overflow:'hidden',border:'2px solid #5b8dff'}}>
                   {avatar ? <img src={avatar} alt="" style={{width:'100%',height:'100%',objectFit:'cover'}} /> : <span style={{fontSize:'24px'}}>👤</span>}
@@ -71,41 +79,42 @@ export default function StatutsPage() {
               </div>
             </div>
             <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} style={{display:'none'}} />
-          </div>
-
-          {statuts.length > 0 && (
-            <div>
-              <p style={{color:'#888',fontSize:'12px',marginBottom:'12px'}}>MES STATUTS RÉCENTS</p>
-              {statuts.map(s => (
-                <div key={s.id} style={{display:'flex',alignItems:'center',gap:'12px',marginBottom:'12px'}}>
-                  <div style={{width:'56px',height:'56px',borderRadius:'50%',overflow:'hidden',border:'2px solid #5b8dff'}}>
-                    <img src={s.image} alt="" style={{width:'100%',height:'100%',objectFit:'cover'}} />
-                  </div>
-                  <div>
-                    <div style={{color:'#fff',fontSize:'14px',fontWeight:600}}>{s.username}</div>
-                    <div style={{color:'#888',fontSize:'12px'}}>{s.time}</div>
-                  </div>
+            {statuts.length === 0 && (
+              <div style={{textAlign:'center',color:'#555',marginTop:'40px'}}>
+                <div style={{fontSize:'48px'}}>⭕</div>
+                <p>Aucun statut pour l'instant</p>
+              </div>
+            )}
+            {statuts.map(s => (
+              <div key={s.id} style={{display:'flex',alignItems:'center',gap:'12px',marginBottom:'12px'}}>
+                <div style={{width:'56px',height:'56px',borderRadius:'50%',overflow:'hidden',border:'2px solid #5b8dff'}}>
+                  <img src={s.image} alt="" style={{width:'100%',height:'100%',objectFit:'cover'}} />
                 </div>
-              ))}
-            </div>
-          )}
+                <div>
+                  <div style={{color:'#fff',fontSize:'14px',fontWeight:600}}>{s.username}</div>
+                  <div style={{color:'#888',fontSize:'12px'}}>{s.time}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+        {tab === 'chaines' && (
+          <div style={{textAlign:'center',color:'#555',marginTop:'80px'}}>
+            <div style={{fontSize:'48px'}}>📡</div>
+            <p>Aucune chaîne pour l'instant</p>
+            <p style={{fontSize:'13px'}}>Bientôt disponible 🚧</p>
+          </div>
+        )}
+      </div>
 
-          {statuts.length === 0 && (
-            <div style={{textAlign:'center',color:'#555',marginTop:'40px'}}>
-              <div style={{fontSize:'48px'}}>⭕</div>
-              <p>Aucun statut pour l'instant</p>
-            </div>
-          )}
-        </div>
-      )}
-
-      {tab === 'chaines' && (
-        <div style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',color:'#555',fontSize:'14px',marginTop:'80px',flexDirection:'column'}}>
-          <div style={{fontSize:'48px'}}>📡</div>
-          <p>Aucune chaîne pour l'instant</p>
-          <p style={{fontSize:'13px'}}>Bientôt disponible 🚧</p>
-        </div>
-      )}
+      <div style={{display:'flex',background:'#10121a',borderTop:'1px solid #1a1d2e',flexShrink:0}}>
+        {bottomNav.map(t => (
+          <button key={t.id} onClick={() => router.push(t.path)} style={{flex:1,padding:'8px 4px',background:'none',border:'none',color: t.id==='statuts' ? '#5b8dff' : '#888',fontSize:'10px',cursor:'pointer',display:'flex',flexDirection:'column',alignItems:'center',gap:'2px'}}>
+            <div style={{fontSize:'20px'}}>{t.icon}</div>
+            <div>{t.label}</div>
+          </button>
+        ))}
+      </div>
     </main>
   )
 }
