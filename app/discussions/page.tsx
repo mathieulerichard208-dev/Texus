@@ -11,6 +11,7 @@ const tabs = [
   { id: 'statuts', icon: '⭕', label: 'Statuts' },
   { id: 'appels', icon: '📞', label: 'Appels' },
   { id: 'publications', icon: '🎬', label: 'Publications' },
+  { id: 'contacts', icon: '👥', label: 'Contacts' },
   { id: 'reglages', icon: '⚙️', label: 'Réglages' },
 ]
 
@@ -23,6 +24,8 @@ export default function DiscussionsPage() {
     if (id === 'reglages') { router.push('/reglages'); return }
     if (id === 'publications') { router.push('/publications'); return }
     if (id === 'statuts') { router.push('/statuts'); return }
+    if (id === 'appels') { router.push('/appels'); return }
+    if (id === 'contacts') { router.push('/contacts'); return }
     setTab(id)
   }
 
