@@ -20,14 +20,9 @@ export default function DiscussionsPage() {
   const [tab, setTab] = useState('discussions')
 
   function handleTab(id: string) {
-    if (id === 'reglages') {
-      router.push('/reglages')
-      return
-    }
-    if (id === 'publications') {
-      router.push('/publications')
-      return
-    }
+    if (id === 'reglages') { router.push('/reglages'); return }
+    if (id === 'publications') { router.push('/publications'); return }
+    if (id === 'statuts') { router.push('/statuts'); return }
     setTab(id)
   }
 
@@ -62,10 +57,7 @@ export default function DiscussionsPage() {
           </div>
           <div style={{flex:1,overflowY:'auto'}}>
             {fakeChats.map((chat, i) => (
-              <div
-                key={i}
-                onClick={() => router.push('/chat')}
-                style={{display:'flex',alignItems:'center',padding:'12px 16px',borderBottom:'1px solid #1a1d2e',cursor:'pointer'}}>
+              <div key={i} onClick={() => router.push('/chat')} style={{display:'flex',alignItems:'center',padding:'12px 16px',borderBottom:'1px solid #1a1d2e',cursor:'pointer'}}>
                 <div style={{width:'48px',height:'48px',borderRadius:'50%',background:'#1a1d2e',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'22px',marginRight:'12px'}}>
                   {chat.avatar}
                 </div>
