@@ -1,6 +1,7 @@
 'use client'
 import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import BottomNav from '../components/BottomNav'
 
 export default function PublicationsPage() {
   const router = useRouter()
@@ -11,6 +12,7 @@ export default function PublicationsPage() {
   const [username, setUsername] = useState('Utilisateur')
   const [avatar, setAvatar] = useState<string | null>(null)
   const [showNew, setShowNew] = useState(false)
+  const [tab, setTab] = useState('tout')
 
   useEffect(() => {
     setUsername(localStorage.getItem('texus_username') || 'Utilisateur')
@@ -30,16 +32,7 @@ export default function PublicationsPage() {
 
   function publish() {
     if (!text.trim() && !image) return
-    const newPost = {
-      id: Date.now(),
-      username,
-      avatar,
-      text,
-      image,
-      time: 'À l\'instant',
-      likes: 0,
-      liked: false,
-    }
+    const newPost = { id: Date.now(), username, avatar, text, image, time: 'À l\'instant', likes: 0, liked: false, type: 'photo' }
     const updated = [newPost, ...posts]
     setPosts(updated)
     localStorage.setItem('texus_posts', JSON.stringify(updated))
@@ -55,46 +48,57 @@ export default function PublicationsPage() {
   }
 
   return (
-    <main style={{minHeight:'100vh',background:'#0d0f14',fontFamily:'sans-serif'}}>
-      <div style={{background:'#10121a',padding:'16px',borderBottom:'1px solid #1a1d2e',display:'flex',alignItems:'center',justifyContent:'space-between',position:'sticky',top:0,zIndex:10}}>
-        <button onClick={() => router.push('/discussions')} style={{background:'none',border:'none',color:'#5b8dff',fontSize:'20px',cursor:'pointer'}}>←</button>
-        <div style={{fontSize:'18px',fontWeight:700,color:'#fff'}}>Publications</div>
+    <main style={{height:'100vh',background:'#0d0f14',display:'flex',flexDirection:'column',fontFamily:'sans-serif',overflow:'hidden'}}>
+      <div style={{background:'#10121a',padding:'16px',borderBottom:'1px solid #1a1d2e',display:'flex',alignItems:'center',justifyContent:'space-between',flexShrink:0}}>
+        <div style={{fontSize:'22px',fontWeight:700,color:'#fff'}}>Tex<span style={{color:'#5b8dff'}}>us</span></div>
         <button onClick={() => setShowNew(!showNew)} style={{background:'#5b8dff',color:'#fff',border:'none',borderRadius:'50%',width:'36px',height:'36px',fontSize:'20px',cursor:'pointer'}}>+</button>
       </div>
 
+      <div style={{display:'flex',background:'#10121a',borderBottom:'1px solid #1a1d2e',flexShrink:0}}>
+        {['tout','videos','direct'].map(t => (
+          <button key={t} onClick={() => setTab(t)} style={{flex:1,padding:'12px',background:'none',border:'none',borderBottom: tab===t ? '2px solid #5b8dff' : '2px solid transparent',color: tab===t ? '#5b8dff' : '#888',fontSize:'13px',cursor:'pointer'}}>
+            {t==='tout' ? 'Tout' : t==='videos' ? '🎥 Vidéos' : '🔴 Direct'}
+          </button>
+        ))}
+      </div>
+
       {showNew && (
-        <div style={{background:'#10121a',padding:'16px',borderBottom:'1px solid #1a1d2e'}}>
-          <textarea
-            value={text}
-            onChange={e => setText(e.target.value)}
-            placeholder="Quoi de neuf ?"
-            style={{width:'100%',background:'#1a1d2e',border:'1px solid #222640',borderRadius:'10px',padding:'12px',color:'#fff',fontSize:'14px',minHeight:'80px',boxSizing:'border-box',resize:'none'}}
-          />
+        <div style={{background:'#10121a',padding:'16px',borderBottom:'1px solid #1a1d2e',flexShrink:0}}>
+          <textarea value={text} onChange={e => setText(e.target.value)} placeholder="Quoi de neuf ?" style={{width:'100%',background:'#1a1d2e',border:'1px solid #222640',borderRadius:'10px',padding:'12px',color:'#fff',fontSize:'14px',minHeight:'80px',boxSizing:'border-box',resize:'none'}} />
           {image && <img src={image} alt="preview" style={{width:'100%',borderRadius:'10px',marginTop:'8px',maxHeight:'200px',objectFit:'cover'}} />}
           <div style={{display:'flex',gap:'8px',marginTop:'8px'}}>
-            <button onClick={() => fileInputRef.current?.click()} style={{background:'#1a1d2e',color:'#aaa',border:'1px solid #222640',borderRadius:'8px',padding:'8px 12px',cursor:'pointer',fontSize:'13px'}}>
-              📷 Photo
-            </button>
-            <button onClick={publish} style={{flex:1,background:'#5b8dff',color:'#fff',border:'none',borderRadius:'8px',padding:'8px',cursor:'pointer',fontSize:'13px',fontWeight:600}}>
-              Publier
-            </button>
+            <button onClick={() => fileInputRef.current?.click()} style={{background:'#1a1d2e',color:'#aaa',border:'1px solid #222640',borderRadius:'8px',padding:'8px 12px',cursor:'pointer',fontSize:'13px'}}>📷 Photo</button>
+            <button onClick={publish} style={{flex:1,background:'#5b8dff',color:'#fff',border:'none',borderRadius:'8px',padding:'8px',cursor:'pointer',fontSize:'13px',fontWeight:600}}>Publier</button>
           </div>
           <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} style={{display:'none'}} />
         </div>
       )}
 
-      <div style={{padding:'12px'}}>
-        {posts.length === 0 && (
-          <div style={{textAlign:'center',color:'#555',marginTop:'60px'}}>
-            <div style={{fontSize:'48px'}}>📝</div>
-            <p>Aucune publication pour l'instant</p>
-            <p style={{fontSize:'13px'}}>Appuie sur + pour publier quelque chose !</p>
+      <div style={{flex:1,overflowY:'auto',padding:'12px'}}>
+        {tab === 'direct' && (
+          <div style={{textAlign:'center',color:'#555',marginTop:'40px'}}>
+            <div style={{fontSize:'48px'}}>🔴</div>
+            <p>Vidéo en direct</p>
+            <p style={{fontSize:'13px'}}>Bientôt disponible 🚧</p>
           </div>
         )}
-        {posts.map(post => (
+        {tab === 'videos' && (
+          <div style={{textAlign:'center',color:'#555',marginTop:'40px'}}>
+            <div style={{fontSize:'48px'}}>🎥</div>
+            <p>Aucune vidéo pour l'instant</p>
+          </div>
+        )}
+        {tab === 'tout' && posts.length === 0 && (
+          <div style={{textAlign:'center',color:'#555',marginTop:'40px'}}>
+            <div style={{fontSize:'48px'}}>📝</div>
+            <p>Aucune publication</p>
+            <p style={{fontSize:'13px'}}>Appuie sur + pour publier !</p>
+          </div>
+        )}
+        {tab === 'tout' && posts.map(post => (
           <div key={post.id} style={{background:'#10121a',borderRadius:'16px',padding:'16px',marginBottom:'12px',border:'1px solid #1a1d2e'}}>
             <div style={{display:'flex',alignItems:'center',gap:'10px',marginBottom:'12px'}}>
-              <div style={{width:'40px',height:'40px',borderRadius:'50%',background:'#1a1d2e',display:'flex',alignItems:'center',justifyContent:'center',overflow:'hidden'}}>
+              <div style={{width:'40px',height:'40px',borderRadius:'50%',background:'#1a1d2e',overflow:'hidden',display:'flex',alignItems:'center',justifyContent:'center'}}>
                 {post.avatar ? <img src={post.avatar} alt="" style={{width:'100%',height:'100%',objectFit:'cover'}} /> : <span style={{fontSize:'18px'}}>👤</span>}
               </div>
               <div>
@@ -105,19 +109,15 @@ export default function PublicationsPage() {
             {post.text && <p style={{color:'#e8eaf0',fontSize:'14px',marginBottom:'10px'}}>{post.text}</p>}
             {post.image && <img src={post.image} alt="" style={{width:'100%',borderRadius:'10px',marginBottom:'10px',maxHeight:'300px',objectFit:'cover'}} />}
             <div style={{display:'flex',gap:'16px',paddingTop:'8px',borderTop:'1px solid #1a1d2e'}}>
-              <button onClick={() => toggleLike(post.id)} style={{background:'none',border:'none',color: post.liked ? '#ff6b6b' : '#888',fontSize:'13px',cursor:'pointer'}}>
-                {post.liked ? '❤️' : '🤍'} {post.likes}
-              </button>
-              <button style={{background:'none',border:'none',color:'#888',fontSize:'13px',cursor:'pointer'}}>
-                💬 Commenter
-              </button>
-              <button style={{background:'none',border:'none',color:'#888',fontSize:'13px',cursor:'pointer'}}>
-                🔗 Partager
-              </button>
+              <button onClick={() => toggleLike(post.id)} style={{background:'none',border:'none',color: post.liked ? '#ff6b6b' : '#888',fontSize:'13px',cursor:'pointer'}}>{post.liked ? '❤️' : '🤍'} {post.likes}</button>
+              <button style={{background:'none',border:'none',color:'#888',fontSize:'13px',cursor:'pointer'}}>💬 Commenter</button>
+              <button style={{background:'none',border:'none',color:'#888',fontSize:'13px',cursor:'pointer'}}>🔗 Partager</button>
             </div>
           </div>
         ))}
       </div>
+
+      <BottomNav current="publicite" />
     </main>
   )
 }
