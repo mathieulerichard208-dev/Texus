@@ -1,20 +1,12 @@
 'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import BottomNav from '../components/BottomNav'
 
 const subTabs = ['Toutes', 'Non lues', 'Favoris', 'Groupes']
 
 const fakeChats = [
   { id: 1, name: 'Bienvenue sur Texus', lastMessage: 'Commence à discuter !', time: 'Maintenant', avatar: '👋', unread: 1, favorite: false, group: false },
-]
-
-const bottomNav = [
-  { id: 'discussions', icon: '💬', label: 'Discussions', path: '/discussions' },
-  { id: 'statuts', icon: '⭕', label: 'Statuts', path: '/statuts' },
-  { id: 'appels', icon: '📞', label: 'Appels', path: '/appels' },
-  { id: 'publicite', icon: '🎬', label: 'Publicité', path: '/publications' },
-  { id: 'contacts', icon: '👥', label: 'Contacts', path: '/contacts' },
-  { id: 'reglages', icon: '⚙️', label: 'Réglages', path: '/reglages' },
 ]
 
 export default function DiscussionsPage() {
@@ -35,9 +27,7 @@ export default function DiscussionsPage() {
         <div style={{fontSize:'22px',fontWeight:700,color:'#fff'}}>
           Tex<span style={{color:'#5b8dff'}}>us</span>
         </div>
-        <button onClick={() => router.push('/chat')} style={{background:'#5b8dff',color:'#fff',border:'none',borderRadius:'50%',width:'40px',height:'40px',fontSize:'20px',cursor:'pointer'}}>
-          +
-        </button>
+        <button onClick={() => router.push('/chat')} style={{background:'#5b8dff',color:'#fff',border:'none',borderRadius:'50%',width:'40px',height:'40px',fontSize:'20px',cursor:'pointer'}}>+</button>
       </div>
 
       <div style={{display:'flex',background:'#10121a',borderBottom:'1px solid #1a1d2e',flexShrink:0}}>
@@ -49,12 +39,7 @@ export default function DiscussionsPage() {
       </div>
 
       <div style={{padding:'12px 16px',flexShrink:0}}>
-        <input
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          placeholder="Rechercher..."
-          style={{width:'100%',background:'#1a1d2e',border:'1px solid #222640',borderRadius:'20px',padding:'10px 16px',color:'#fff',fontSize:'14px',boxSizing:'border-box'}}
-        />
+        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Rechercher..." style={{width:'100%',background:'#1a1d2e',border:'1px solid #222640',borderRadius:'20px',padding:'10px 16px',color:'#fff',fontSize:'14px',boxSizing:'border-box'}} />
       </div>
 
       <div style={{flex:1,overflowY:'auto'}}>
@@ -75,24 +60,13 @@ export default function DiscussionsPage() {
             </div>
             <div style={{display:'flex',flexDirection:'column',alignItems:'flex-end',gap:'4px'}}>
               <div style={{color:'#555',fontSize:'12px'}}>{chat.time}</div>
-              {chat.unread > 0 && (
-                <div style={{background:'#5b8dff',color:'#fff',borderRadius:'50%',width:'18px',height:'18px',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'11px'}}>
-                  {chat.unread}
-                </div>
-              )}
+              {chat.unread > 0 && <div style={{background:'#5b8dff',color:'#fff',borderRadius:'50%',width:'18px',height:'18px',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'11px'}}>{chat.unread}</div>}
             </div>
           </div>
         ))}
       </div>
 
-      <div style={{display:'flex',background:'#10121a',borderTop:'1px solid #1a1d2e',flexShrink:0}}>
-        {bottomNav.map(t => (
-          <button key={t.id} onClick={() => router.push(t.path)} style={{flex:1,padding:'8px 4px',background:'none',border:'none',color: t.id==='discussions' ? '#5b8dff' : '#888',fontSize:'10px',cursor:'pointer',display:'flex',flexDirection:'column',alignItems:'center',gap:'2px'}}>
-            <div style={{fontSize:'20px'}}>{t.icon}</div>
-            <div>{t.label}</div>
-          </button>
-        ))}
-      </div>
+      <BottomNav current="discussions" />
     </main>
   )
 }
