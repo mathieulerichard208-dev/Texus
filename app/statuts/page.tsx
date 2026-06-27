@@ -1,15 +1,7 @@
 'use client'
 import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-
-const bottomNav = [
-  { id: 'discussions', icon: '💬', label: 'Discussions', path: '/discussions' },
-  { id: 'statuts', icon: '⭕', label: 'Statuts', path: '/statuts' },
-  { id: 'appels', icon: '📞', label: 'Appels', path: '/appels' },
-  { id: 'publicite', icon: '🎬', label: 'Publicité', path: '/publications' },
-  { id: 'contacts', icon: '👥', label: 'Contacts', path: '/contacts' },
-  { id: 'reglages', icon: '⚙️', label: 'Réglages', path: '/reglages' },
-]
+import BottomNav from '../components/BottomNav'
 
 export default function StatutsPage() {
   const router = useRouter()
@@ -31,13 +23,7 @@ export default function StatutsPage() {
     if (file) {
       const reader = new FileReader()
       reader.onload = () => {
-        const newStatut = {
-          id: Date.now(),
-          username,
-          avatar,
-          image: reader.result as string,
-          time: 'À l\'instant',
-        }
+        const newStatut = { id: Date.now(), username, avatar, image: reader.result as string, time: 'À l\'instant' }
         const updated = [newStatut, ...statuts]
         setStatuts(updated)
         localStorage.setItem('texus_statuts', JSON.stringify(updated))
@@ -54,12 +40,8 @@ export default function StatutsPage() {
       </div>
 
       <div style={{display:'flex',background:'#10121a',borderBottom:'1px solid #1a1d2e',flexShrink:0}}>
-        <button onClick={() => setTab('statuts')} style={{flex:1,padding:'12px',background:'none',border:'none',borderBottom: tab==='statuts' ? '2px solid #5b8dff' : '2px solid transparent',color: tab==='statuts' ? '#5b8dff' : '#888',fontSize:'13px',cursor:'pointer'}}>
-          Statuts
-        </button>
-        <button onClick={() => setTab('chaines')} style={{flex:1,padding:'12px',background:'none',border:'none',borderBottom: tab==='chaines' ? '2px solid #5b8dff' : '2px solid transparent',color: tab==='chaines' ? '#5b8dff' : '#888',fontSize:'13px',cursor:'pointer'}}>
-          Chaînes
-        </button>
+        <button onClick={() => setTab('statuts')} style={{flex:1,padding:'12px',background:'none',border:'none',borderBottom: tab==='statuts' ? '2px solid #5b8dff' : '2px solid transparent',color: tab==='statuts' ? '#5b8dff' : '#888',fontSize:'13px',cursor:'pointer'}}>Statuts</button>
+        <button onClick={() => setTab('chaines')} style={{flex:1,padding:'12px',background:'none',border:'none',borderBottom: tab==='chaines' ? '2px solid #5b8dff' : '2px solid transparent',color: tab==='chaines' ? '#5b8dff' : '#888',fontSize:'13px',cursor:'pointer'}}>Chaînes</button>
       </div>
 
       <div style={{flex:1,overflowY:'auto'}}>
@@ -107,14 +89,7 @@ export default function StatutsPage() {
         )}
       </div>
 
-      <div style={{display:'flex',background:'#10121a',borderTop:'1px solid #1a1d2e',flexShrink:0}}>
-        {bottomNav.map(t => (
-          <button key={t.id} onClick={() => router.push(t.path)} style={{flex:1,padding:'8px 4px',background:'none',border:'none',color: t.id==='statuts' ? '#5b8dff' : '#888',fontSize:'10px',cursor:'pointer',display:'flex',flexDirection:'column',alignItems:'center',gap:'2px'}}>
-            <div style={{fontSize:'20px'}}>{t.icon}</div>
-            <div>{t.label}</div>
-          </button>
-        ))}
-      </div>
+      <BottomNav current="statuts" />
     </main>
   )
 }
