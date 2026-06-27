@@ -12,8 +12,20 @@ const countries = [
   { code: '+227', flag: '🇳🇪', name: 'Niger' },
   { code: '+228', flag: '🇹🇬', name: 'Togo' },
   { code: '+237', flag: '🇨🇲', name: 'Cameroun' },
+  { code: '+241', flag: '🇬🇦', name: 'Gabon' },
+  { code: '+242', flag: '🇨🇬', name: 'Congo' },
+  { code: '+243', flag: '🇨🇩', name: 'RD Congo' },
+  { code: '+212', flag: '🇲🇦', name: 'Maroc' },
+  { code: '+213', flag: '🇩🇿', name: 'Algérie' },
+  { code: '+216', flag: '🇹🇳', name: 'Tunisie' },
+  { code: '+20', flag: '🇪🇬', name: 'Egypte' },
+  { code: '+254', flag: '🇰🇪', name: 'Kenya' },
+  { code: '+233', flag: '🇬🇭', name: 'Ghana' },
+  { code: '+27', flag: '🇿🇦', name: 'Afrique du Sud' },
   { code: '+33', flag: '🇫🇷', name: 'France' },
+  { code: '+32', flag: '🇧🇪', name: 'Belgique' },
   { code: '+1', flag: '🇺🇸', name: 'USA' },
+  { code: '+44', flag: '🇬🇧', name: 'Royaume-Uni' },
 ]
 
 export default function AuthPage() {
@@ -23,6 +35,7 @@ export default function AuthPage() {
   const [phone, setPhone] = useState('')
   const [code, setCode] = useState('')
   const [otp, setOtp] = useState('')
+  const [otpDisplay, setOtpDisplay] = useState('')
   const [username, setUsername] = useState('')
   const [avatar, setAvatar] = useState<string | null>(null)
   const [step, setStep] = useState(1)
@@ -40,8 +53,9 @@ export default function AuthPage() {
     const data = await res.json()
     if (data.success) {
       setOtp(data.otp)
+      setOtpDisplay(data.otp)
       setStep(2)
-      setMessage('Code envoyé !')
+      setMessage('')
     } else {
       setMessage('Erreur - réessayez')
     }
@@ -66,10 +80,6 @@ export default function AuthPage() {
     setStep(4)
   }
 
-  function handlePhotoClick() {
-    fileInputRef.current?.click()
-  }
-
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (file) {
@@ -87,11 +97,12 @@ export default function AuthPage() {
   }
 
   return (
-    <main style={{minHeight:'100vh',background:'#0d0f14',display:'flex',alignItems:'center',justifyContent:'center',fontFamily:'sans-serif'}}>
+    <main style={{minHeight:'100vh',background:'#0d0f14',display:'flex',alignItems:'center',justifyContent:'center',fontFamily:'sans-serif',padding:'20px'}}>
       <div style={{background:'#10121a',border:'1px solid #1a1d2e',borderRadius:'20px',padding:'40px 32px',width:'100%',maxWidth:'380px'}}>
         <div style={{fontSize:'28px',fontWeight:700,color:'#fff',textAlign:'center',marginBottom:'32px'}}>
           Tex<span style={{color:'#5b8dff'}}>us</span>
         </div>
+
         {step===1 && (
           <>
             <div style={{display:'flex',gap:'8px',marginBottom:'12px'}}>
@@ -116,21 +127,28 @@ export default function AuthPage() {
             </button>
           </>
         )}
+
         {step===2 && (
           <>
-            <p style={{color:'#aaa',textAlign:'center',marginBottom:'16px'}}>Entre le code reçu</p>
+            <div style={{background:'#1a1d2e',border:'2px solid #5b8dff',borderRadius:'12px',padding:'16px',textAlign:'center',marginBottom:'16px'}}>
+              <div style={{color:'#888',fontSize:'12px',marginBottom:'8px'}}>Ton code de vérification</div>
+              <div style={{color:'#5b8dff',fontSize:'32px',fontWeight:700,letterSpacing:'8px'}}>{otpDisplay}</div>
+              <div style={{color:'#555',fontSize:'11px',marginTop:'8px'}}>Copie ce code et entre-le ci-dessous</div>
+            </div>
             <input
               type="text"
               value={code}
               onChange={e => setCode(e.target.value)}
-              placeholder="123456"
-              style={{width:'100%',background:'#1a1d2e',border:'1px solid #222640',borderRadius:'10px',padding:'12px',fontSize:'14px',color:'#fff',boxSizing:'border-box'}}
+              placeholder="Entre le code"
+              maxLength={6}
+              style={{width:'100%',background:'#1a1d2e',border:'1px solid #222640',borderRadius:'10px',padding:'12px',fontSize:'18px',color:'#fff',boxSizing:'border-box',textAlign:'center',letterSpacing:'4px'}}
             />
             <button onClick={verifyOtp} style={{width:'100%',background:'#5b8dff',color:'#fff',border:'none',borderRadius:'12px',padding:'13px',fontSize:'14px',fontWeight:600,cursor:'pointer',marginTop:'12px'}}>
               Confirmer le code
             </button>
           </>
         )}
+
         {step===3 && (
           <>
             <p style={{color:'#aaa',textAlign:'center',marginBottom:'16px'}}>Choisis ton nom d'utilisateur</p>
@@ -146,16 +164,13 @@ export default function AuthPage() {
             </button>
           </>
         )}
+
         {step===4 && (
           <>
             <p style={{color:'#aaa',textAlign:'center',marginBottom:'20px'}}>Ajoute une photo de profil</p>
             <div style={{display:'flex',justifyContent:'center',marginBottom:'20px'}}>
-              <div onClick={handlePhotoClick} style={{width:'100px',height:'100px',borderRadius:'50%',background:'#1a1d2e',border:'2px dashed #333',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',overflow:'hidden'}}>
-                {avatar ? (
-                  <img src={avatar} alt="avatar" style={{width:'100%',height:'100%',objectFit:'cover'}} />
-                ) : (
-                  <span style={{fontSize:'32px',color:'#555'}}>📷</span>
-                )}
+              <div onClick={() => fileInputRef.current?.click()} style={{width:'100px',height:'100px',borderRadius:'50%',background:'#1a1d2e',border:'2px dashed #333',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',overflow:'hidden'}}>
+                {avatar ? <img src={avatar} alt="avatar" style={{width:'100%',height:'100%',objectFit:'cover'}} /> : <span style={{fontSize:'32px',color:'#555'}}>📷</span>}
               </div>
             </div>
             <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} style={{display:'none'}} />
@@ -164,6 +179,7 @@ export default function AuthPage() {
             </button>
           </>
         )}
+
         {message && <p style={{color:'red',textAlign:'center',marginTop:'12px',fontSize:'13px'}}>{message}</p>}
       </div>
     </main>
