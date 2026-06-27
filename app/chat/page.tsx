@@ -116,25 +116,25 @@ export default function ChatPage() {
         </div>
       )}
 
-      <div style={{display:'flex',padding:'12px',gap:'8px',background:'#10121a',borderTop:'1px solid #1a1d2e',flexShrink:0,alignItems:'center'}}>
-        <button onClick={() => fileInputRef.current?.click()} style={{background:'#1a1d2e',border:'none',borderRadius:'50%',width:'40px',height:'40px',cursor:'pointer',fontSize:'18px',flexShrink:0}}>📷</button>
+      <div style={{display:'flex',padding:'8px 12px',gap:'6px',background:'#10121a',borderTop:'1px solid #1a1d2e',flexShrink:0,alignItems:'center'}}>
+        <button onClick={() => fileInputRef.current?.click()} style={{background:'none',border:'none',color:'#888',fontSize:'22px',cursor:'pointer',flexShrink:0,padding:'4px'}}>📎</button>
         <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} style={{display:'none'}} />
         <input
           value={text}
           onChange={e => setText(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && sendMessage()}
           placeholder="Écris un message..."
-          style={{flex:1,background:'#1a1d2e',border:'1px solid #222640',borderRadius:'20px',padding:'10px 16px',color:'#fff',fontSize:'14px'}}
+          style={{flex:1,background:'#1a1d2e',border:'1px solid #222640',borderRadius:'20px',padding:'10px 16px',color:'#fff',fontSize:'14px',minWidth:0}}
         />
         <button
           onMouseDown={startRecording}
           onMouseUp={stopRecording}
           onTouchStart={startRecording}
           onTouchEnd={stopRecording}
-          style={{background: recording ? '#ff4444' : '#1a1d2e',color:'#fff',border:'none',borderRadius:'50%',width:'40px',height:'40px',cursor:'pointer',fontSize:'18px',flexShrink:0}}>
+          style={{background: recording ? '#ff4444' : 'none',border:'none',color: recording ? '#fff' : '#888',fontSize:'22px',cursor:'pointer',flexShrink:0,padding:'4px',borderRadius:'50%',width:'36px',height:'36px'}}>
           🎙️
         </button>
-        <button onClick={() => sendMessage()} style={{background:'#5b8dff',color:'#fff',border:'none',borderRadius:'50%',width:'40px',height:'40px',cursor:'pointer',fontSize:'18px',flexShrink:0}}>➤</button>
+        <button onClick={() => sendMessage()} style={{background:'#5b8dff',color:'#fff',border:'none',borderRadius:'50%',width:'36px',height:'36px',cursor:'pointer',fontSize:'16px',flexShrink:0}}>➤</button>
       </div>
     </main>
   )
