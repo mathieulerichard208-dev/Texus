@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
+import BottomNav from '../components/BottomNav'
 
 export default function ReglagesPage() {
   const router = useRouter()
@@ -55,26 +56,21 @@ export default function ReglagesPage() {
   }
 
   return (
-    <main style={{minHeight:'100vh',background:'#0d0f14',fontFamily:'sans-serif'}}>
-      <div style={{background:'#10121a',padding:'16px',borderBottom:'1px solid #1a1d2e',display:'flex',alignItems:'center',gap:'12px'}}>
-        <button onClick={() => router.push('/discussions')} style={{background:'none',border:'none',color:'#5b8dff',fontSize:'20px',cursor:'pointer'}}>←</button>
-        <div style={{fontSize:'18px',fontWeight:700,color:'#fff'}}>Réglages</div>
+    <main style={{height:'100vh',background:'#0d0f14',display:'flex',flexDirection:'column',fontFamily:'sans-serif',overflow:'hidden'}}>
+      <div style={{background:'#10121a',padding:'16px',borderBottom:'1px solid #1a1d2e',display:'flex',alignItems:'center',flexShrink:0}}>
+        <div style={{fontSize:'22px',fontWeight:700,color:'#fff'}}>Tex<span style={{color:'#5b8dff'}}>us</span></div>
       </div>
 
-      <div style={{padding:'24px 16px'}}>
+      <div style={{flex:1,overflowY:'auto',padding:'24px 16px'}}>
         <div style={{display:'flex',flexDirection:'column',alignItems:'center',marginBottom:'32px'}}>
           <div onClick={handlePhotoClick} style={{width:'90px',height:'90px',borderRadius:'50%',background:'#1a1d2e',border:'2px dashed #333',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',overflow:'hidden',marginBottom:'12px'}}>
-            {avatar ? (
-              <img src={avatar} alt="avatar" style={{width:'100%',height:'100%',objectFit:'cover'}} />
-            ) : (
-              <span style={{fontSize:'32px'}}>👤</span>
-            )}
+            {avatar ? <img src={avatar} alt="avatar" style={{width:'100%',height:'100%',objectFit:'cover'}} /> : <span style={{fontSize:'32px'}}>👤</span>}
           </div>
           <button onClick={handlePhotoClick} style={{background:'none',border:'none',color:'#5b8dff',fontSize:'13px',cursor:'pointer'}}>Changer la photo</button>
           <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} style={{display:'none'}} />
         </div>
 
-        <div style={{background:'#10121a',borderRadius:'12px',padding:'16px',marginBottom:'12px'}}>
+        <div style={{background:'#10121a',borderRadius:'12px',padding:'16px',marginBottom:'12px',border:'1px solid #1a1d2e'}}>
           <div style={{color:'#888',fontSize:'12px',marginBottom:'4px'}}>Nom d'utilisateur</div>
           {editName ? (
             <div style={{display:'flex',gap:'8px'}}>
@@ -89,7 +85,7 @@ export default function ReglagesPage() {
           )}
         </div>
 
-        <div style={{background:'#10121a',borderRadius:'12px',padding:'16px',marginBottom:'24px'}}>
+        <div style={{background:'#10121a',borderRadius:'12px',padding:'16px',marginBottom:'24px',border:'1px solid #1a1d2e'}}>
           <div style={{color:'#888',fontSize:'12px',marginBottom:'4px'}}>Numéro de téléphone</div>
           <div style={{color:'#fff',fontSize:'15px'}}>{phone || 'Non défini'}</div>
         </div>
@@ -102,6 +98,8 @@ export default function ReglagesPage() {
           🗑️ Supprimer mon compte
         </button>
       </div>
+
+      <BottomNav current="reglages" />
     </main>
   )
 }
