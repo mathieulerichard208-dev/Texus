@@ -7,39 +7,26 @@ export default function ChatPage() {
   const [messages, setMessages] = useState<any[]>([])
   const [text, setText] = useState('')
   const [image, setImage] = useState<string | null>(null)
-  const [username, setUsername] = useState('Moi')
+  const [recording, setRecording] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    setUsername(localStorage.getItem('texus_username') || 'Moi')
-  }, [])
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null)
+  const audioChunksRef = useRef<Blob[]>([])
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
-  function sendMessage() {
-    if (!text.trim() && !image) return
+  function sendMessage(audio?: string) {
+    if (!text.trim() && !image && !audio) return
     const now = new Date()
     const time = now.getHours() + ':' + String(now.getMinutes()).padStart(2, '0')
-    const newMsg = {
-      id: Date.now(),
-      text,
-      image,
-      time,
-      status: 'sent',
-      mine: true,
-    }
+    const newMsg = { id: Date.now(), text, image, audio: audio || null, time, status: 'sent', mine: true }
     setMessages(prev => [...prev, newMsg])
     setText('')
     setImage(null)
-    setTimeout(() => {
-      setMessages(prev => prev.map(m => m.id === newMsg.id ? {...m, status: 'delivered'} : m))
-    }, 1000)
-    setTimeout(() => {
-      setMessages(prev => prev.map(m => m.id === newMsg.id ? {...m, status: 'read'} : m))
-    }, 2500)
+    setTimeout(() => setMessages(prev => prev.map(m => m.id === newMsg.id ? {...m, status: 'delivered'} : m)), 1000)
+    setTimeout(() => setMessages(prev => prev.map(m => m.id === newMsg.id ? {...m, status: 'read'} : m)), 2500)
   }
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -49,6 +36,32 @@ export default function ChatPage() {
       reader.onload = () => setImage(reader.result as string)
       reader.readAsDataURL(file)
     }
+  }
+
+  async function startRecording() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      const mediaRecorder = new MediaRecorder(stream)
+      mediaRecorderRef.current = mediaRecorder
+      audioChunksRef.current = []
+      mediaRecorder.ondataavailable = e => audioChunksRef.current.push(e.data)
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(audioChunksRef.current, { type: 'audio/webm' })
+        const reader = new FileReader()
+        reader.onload = () => sendMessage(reader.result as string)
+        reader.readAsDataURL(blob)
+        stream.getTracks().forEach(t => t.stop())
+      }
+      mediaRecorder.start()
+      setRecording(true)
+    } catch {
+      alert('Micro non disponible')
+    }
+  }
+
+  function stopRecording() {
+    mediaRecorderRef.current?.stop()
+    setRecording(false)
   }
 
   function getCheck(status: string) {
@@ -63,14 +76,12 @@ export default function ChatPage() {
       <div style={{background:'#10121a',padding:'12px 16px',borderBottom:'1px solid #1a1d2e',display:'flex',alignItems:'center',gap:'12px',flexShrink:0}}>
         <button onClick={() => router.push('/discussions')} style={{background:'none',border:'none',color:'#5b8dff',fontSize:'20px',cursor:'pointer'}}>←</button>
         <div style={{width:'40px',height:'40px',borderRadius:'50%',background:'#1a1d2e',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'18px'}}>👤</div>
-        <div>
+        <div style={{flex:1}}>
           <div style={{color:'#fff',fontSize:'15px',fontWeight:600}}>Discussion</div>
           <div style={{color:'#888',fontSize:'12px'}}>En ligne</div>
         </div>
-        <div style={{marginLeft:'auto',display:'flex',gap:'12px'}}>
-          <button style={{background:'none',border:'none',color:'#888',fontSize:'20px',cursor:'pointer'}}>📞</button>
-          <button style={{background:'none',border:'none',color:'#888',fontSize:'20px',cursor:'pointer'}}>📹</button>
-        </div>
+        <button style={{background:'none',border:'none',color:'#888',fontSize:'20px',cursor:'pointer'}}>📞</button>
+        <button style={{background:'none',border:'none',color:'#888',fontSize:'20px',cursor:'pointer'}}>📹</button>
       </div>
 
       <div style={{flex:1,overflowY:'auto',padding:'12px'}}>
@@ -84,6 +95,7 @@ export default function ChatPage() {
           <div key={msg.id} style={{display:'flex',justifyContent: msg.mine ? 'flex-end' : 'flex-start',marginBottom:'8px'}}>
             <div style={{background: msg.mine ? '#5b8dff' : '#1a1d2e',color:'#fff',padding:'10px 14px',borderRadius: msg.mine ? '16px 16px 4px 16px' : '16px 16px 16px 4px',maxWidth:'70%',fontSize:'14px'}}>
               {msg.image && <img src={msg.image} alt="" style={{width:'100%',borderRadius:'8px',marginBottom:'6px',maxHeight:'200px',objectFit:'cover'}} />}
+              {msg.audio && <audio controls src={msg.audio} style={{width:'100%',marginBottom:'6px'}} />}
               {msg.text && <div>{msg.text}</div>}
               <div style={{display:'flex',justifyContent:'flex-end',alignItems:'center',gap:'4px',marginTop:'4px'}}>
                 <span style={{fontSize:'11px',color:'rgba(255,255,255,0.6)'}}>{msg.time}</span>
@@ -96,7 +108,7 @@ export default function ChatPage() {
       </div>
 
       {image && (
-        <div style={{padding:'8px 16px',background:'#10121a',borderTop:'1px solid #1a1d2e'}}>
+        <div style={{padding:'8px 16px',background:'#10121a',borderTop:'1px solid #1a1d2e',flexShrink:0}}>
           <div style={{position:'relative',display:'inline-block'}}>
             <img src={image} alt="preview" style={{height:'60px',borderRadius:'8px',objectFit:'cover'}} />
             <button onClick={() => setImage(null)} style={{position:'absolute',top:'-8px',right:'-8px',background:'#ff4444',border:'none',borderRadius:'50%',width:'20px',height:'20px',color:'#fff',cursor:'pointer',fontSize:'12px'}}>✕</button>
@@ -104,17 +116,25 @@ export default function ChatPage() {
         </div>
       )}
 
-      <div style={{display:'flex',padding:'12px',gap:'8px',background:'#10121a',borderTop:'1px solid #1a1d2e',flexShrink:0}}>
-        <button onClick={() => fileInputRef.current?.click()} style={{background:'#1a1d2e',border:'none',borderRadius:'50%',width:'44px',height:'44px',cursor:'pointer',fontSize:'18px'}}>📷</button>
+      <div style={{display:'flex',padding:'12px',gap:'8px',background:'#10121a',borderTop:'1px solid #1a1d2e',flexShrink:0,alignItems:'center'}}>
+        <button onClick={() => fileInputRef.current?.click()} style={{background:'#1a1d2e',border:'none',borderRadius:'50%',width:'40px',height:'40px',cursor:'pointer',fontSize:'18px',flexShrink:0}}>📷</button>
         <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} style={{display:'none'}} />
         <input
           value={text}
           onChange={e => setText(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && sendMessage()}
           placeholder="Écris un message..."
-          style={{flex:1,background:'#1a1d2e',border:'1px solid #222640',borderRadius:'20px',padding:'12px 16px',color:'#fff',fontSize:'14px'}}
+          style={{flex:1,background:'#1a1d2e',border:'1px solid #222640',borderRadius:'20px',padding:'10px 16px',color:'#fff',fontSize:'14px'}}
         />
-        <button onClick={sendMessage} style={{background:'#5b8dff',color:'#fff',border:'none',borderRadius:'50%',width:'44px',height:'44px',cursor:'pointer',fontSize:'18px'}}>➤</button>
+        <button
+          onMouseDown={startRecording}
+          onMouseUp={stopRecording}
+          onTouchStart={startRecording}
+          onTouchEnd={stopRecording}
+          style={{background: recording ? '#ff4444' : '#1a1d2e',color:'#fff',border:'none',borderRadius:'50%',width:'40px',height:'40px',cursor:'pointer',fontSize:'18px',flexShrink:0}}>
+          🎙️
+        </button>
+        <button onClick={() => sendMessage()} style={{background:'#5b8dff',color:'#fff',border:'none',borderRadius:'50%',width:'40px',height:'40px',cursor:'pointer',fontSize:'18px',flexShrink:0}}>➤</button>
       </div>
     </main>
   )
