@@ -10,13 +10,11 @@ export default function ChatPage() {
   const [recording, setRecording] = useState(false)
   const [recordingTime, setRecordingTime] = useState(0)
   const [audioBlob, setAudioBlob] = useState<string | null>(null)
-  const [audioPaused, setAudioPaused] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const audioChunksRef = useRef<Blob[]>([])
   const timerRef = useRef<any>(null)
-  const previewRef = useRef<HTMLAudioElement>(null)
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -25,7 +23,7 @@ export default function ChatPage() {
   function formatTime(s: number) {
     const m = Math.floor(s / 60)
     const sec = s % 60
-    return m + ":" + String(sec).padStart(2, "0")
+    return m + ':' + String(sec).padStart(2, '0')
   }
 
   async function startRecording() {
@@ -47,7 +45,7 @@ export default function ChatPage() {
       setRecordingTime(0)
       timerRef.current = setInterval(() => setRecordingTime(t => t + 1), 1000)
     } catch {
-      alert('Autorise le micro dans les paramètres du navigateur')
+      alert('Autorise le micro dans les parametres du navigateur')
     }
   }
 
@@ -96,9 +94,9 @@ export default function ChatPage() {
   }
 
   function getCheck(status: string) {
-    if (status === 'sent') return <span style={{color:'#888'}}>✓</span>
-    if (status === 'delivered') return <span style={{color:'#888'}}>✓✓</span>
-    if (status === 'read') return <span style={{color:'#5b8dff'}}>✓✓</span>
+    if (status === 'sent') return <span style={{color:'#888'}}>check</span>
+    if (status === 'delivered') return <span style={{color:'#888'}}>check check</span>
+    if (status === 'read') return <span style={{color:'#5b8dff'}}>check check</span>
     return null
   }
 
@@ -148,18 +146,16 @@ export default function ChatPage() {
         <div style={{padding:'8px 16px',background:'#10121a',borderTop:'1px solid #1a1d2e',flexShrink:0}}>
           <div style={{position:'relative',display:'inline-block'}}>
             <img src={image} alt="preview" style={{height:'60px',borderRadius:'8px',objectFit:'cover'}} />
-            <button onClick={() => setImage(null)} style={{position:'absolute',top:'-8px',right:'-8px',background:'#ff4444',border:'none',borderRadius:'50%',width:'20px',height:'20px',color:'#fff',cursor:'pointer',fontSize:'12px'}}>✕</button>
+            <button onClick={() => setImage(null)} style={{position:'absolute',top:'-8px',right:'-8px',background:'#ff4444',border:'none',borderRadius:'50%',width:'20px',height:'20px',color:'#fff',cursor:'pointer',fontSize:'12px'}}>X</button>
           </div>
         </div>
       )}
 
       {recording && (
         <div style={{display:'flex',alignItems:'center',gap:'12px',padding:'12px 16px',background:'#10121a',borderTop:'1px solid #1a1d2e',flexShrink:0}}>
-          <div style={{width:'10px',height:'10px',borderRadius:'50%',background:'#ff4444',animation:'pulse 1s infinite'}}></div>
+          <div style={{width:'10px',height:'10px',borderRadius:'50%',background:'#ff4444'}}></div>
           <div style={{color:'#ff4444',fontSize:'14px',fontWeight:600}}>🎙️ {formatTime(recordingTime)}</div>
-          <div style={{flex:1,height:'2px',background:'#222640',borderRadius:'2px'}}>
-            <div style={{width: ${Math.min(recordingTime * 2, 100)}%,height:'100%',background:'#ff4444',borderRadius:'2px'}}></div>
-          </div>
+          <div style={{flex:1,height:'2px',background:'#222640',borderRadius:'2px'}}></div>
           <button onClick={stopRecording} style={{background:'#ff4444',color:'#fff',border:'none',borderRadius:'50%',width:'36px',height:'36px',cursor:'pointer',fontSize:'16px'}}>⏹️</button>
         </div>
       )}
@@ -167,7 +163,7 @@ export default function ChatPage() {
       {audioBlob && !recording && (
         <div style={{display:'flex',alignItems:'center',gap:'8px',padding:'12px 16px',background:'#10121a',borderTop:'1px solid #1a1d2e',flexShrink:0}}>
           <button onClick={cancelAudio} style={{background:'#ff4444',color:'#fff',border:'none',borderRadius:'50%',width:'36px',height:'36px',cursor:'pointer',fontSize:'16px'}}>🗑️</button>
-          <audio ref={previewRef} src={audioBlob} controls style={{flex:1,height:'32px'}} />
+          <audio src={audioBlob} controls style={{flex:1,height:'32px'}} />
           <span style={{color:'#888',fontSize:'12px'}}>{formatTime(recordingTime)}</span>
           <button onClick={sendAudio} style={{background:'#5b8dff',color:'#fff',border:'none',borderRadius:'50%',width:'36px',height:'36px',cursor:'pointer',fontSize:'16px'}}>➤</button>
         </div>
@@ -175,20 +171,16 @@ export default function ChatPage() {
 
       {!recording && !audioBlob && (
         <div style={{display:'flex',padding:'8px 12px',gap:'6px',background:'#10121a',borderTop:'1px solid #1a1d2e',flexShrink:0,alignItems:'center'}}>
-          <button onClick={() => fileInputRef.current?.click()} style={{background:'none',border:'none',color:'#888',fontSize:'22px',cursor:'pointer',flexShrink:0,padding:'4px'}}>📎</button>
+          <button onClick={() => fileInputRef.current?.click()} style={{background:'none',border:'none',color:'#888',fontSize:'22px',cursor:'pointer',flexShrink:0}}>📎</button>
           <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} style={{display:'none'}} />
           <input
             value={text}
             onChange={e => setText(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && sendMessage()}
-            placeholder="Écris un message..."
+            placeholder="Ecris un message..."
             style={{flex:1,background:'#1a1d2e',border:'1px solid #222640',borderRadius:'20px',padding:'10px 16px',color:'#fff',fontSize:'14px',minWidth:0}}
           />
-          <button
-            onClick={startRecording}
-            style={{background:'none',border:'none',color:'#888',fontSize:'22px',cursor:'pointer',flexShrink:0,padding:'4px'}}>
-            🎙️
-          </button>
+          <button onClick={startRecording} style={{background:'none',border:'none',color:'#888',fontSize:'22px',cursor:'pointer',flexShrink:0}}>🎙️</button>
           <button onClick={sendMessage} style={{background:'#5b8dff',color:'#fff',border:'none',borderRadius:'50%',width:'36px',height:'36px',cursor:'pointer',fontSize:'16px',flexShrink:0}}>➤</button>
         </div>
       )}
