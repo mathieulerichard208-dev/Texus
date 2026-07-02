@@ -25,7 +25,7 @@ export default function ChatPage() {
   function formatTime(s: number) {
     const m = Math.floor(s / 60)
     const sec = s % 60
-    return ${m}:${String(sec).padStart(2, "0")}
+    return m + ":" + String(sec).padStart(2, "0")
   }
 
   async function startRecording() {
