@@ -3,10 +3,10 @@ import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 
 const countries = [
-  { code: '+229', flag: '🇧🇯', name: 'Bénin' },
+  { code: '+229', flag: '🇧🇯', name: 'Benin' },
   { code: '+234', flag: '🇳🇬', name: 'Nigeria' },
-  { code: '+225', flag: '🇨🇮', name: 'Côte d\'Ivoire' },
-  { code: '+221', flag: '🇸🇳', name: 'Sénégal' },
+  { code: '+225', flag: '🇨🇮', name: 'Cote Ivoire' },
+  { code: '+221', flag: '🇸🇳', name: 'Senegal' },
   { code: '+223', flag: '🇲🇱', name: 'Mali' },
   { code: '+226', flag: '🇧🇫', name: 'Burkina Faso' },
   { code: '+227', flag: '🇳🇪', name: 'Niger' },
@@ -16,7 +16,7 @@ const countries = [
   { code: '+242', flag: '🇨🇬', name: 'Congo' },
   { code: '+243', flag: '🇨🇩', name: 'RD Congo' },
   { code: '+212', flag: '🇲🇦', name: 'Maroc' },
-  { code: '+213', flag: '🇩🇿', name: 'Algérie' },
+  { code: '+213', flag: '🇩🇿', name: 'Algerie' },
   { code: '+216', flag: '🇹🇳', name: 'Tunisie' },
   { code: '+20', flag: '🇪🇬', name: 'Egypte' },
   { code: '+254', flag: '🇰🇪', name: 'Kenya' },
@@ -41,6 +41,8 @@ export default function AuthPage() {
   const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
+  const [isExisting, setIsExisting] = useState(false)
+  const [existingProfile, setExistingProfile] = useState<any>(null)
 
   async function sendOtp() {
     setLoading(true)
@@ -54,20 +56,32 @@ export default function AuthPage() {
     if (data.success) {
       setOtp(data.otp)
       setOtpDisplay(data.otp)
+      setIsExisting(data.isExisting)
+      setExistingProfile(data.profile)
       setStep(2)
       setMessage('')
     } else {
-      setMessage('Erreur - réessayez')
+      setMessage('Erreur - reessayez')
     }
     setLoading(false)
   }
 
-  function verifyOtp() {
-    if (code === otp) {
+  async function verifyOtp() {
+    if (code !== otp) {
+      setMessage('Code incorrect - reessayez')
+      return
+    }
+    
+    const fullPhone = country.code + phone.replace(/\s/g, '')
+    
+    if (isExisting && existingProfile) {
+      localStorage.setItem('texus_username', existingProfile.username || 'Utilisateur')
+      localStorage.setItem('texus_phone', fullPhone)
+      if (existingProfile.avatar) localStorage.setItem('texus_avatar', existingProfile.avatar)
+      router.push('/discussions')
+    } else {
       setMessage('')
       setStep(3)
-    } else {
-      setMessage('Code incorrect - réessayez')
     }
   }
 
@@ -89,10 +103,18 @@ export default function AuthPage() {
     }
   }
 
-  function finishSignup() {
+  async function finishSignup() {
+    const fullPhone = country.code + phone.replace(/\s/g, '')
+    
+    await fetch('/api/save-profile', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone: fullPhone, username, avatar })
+    })
+
     localStorage.setItem('texus_username', username)
     if (avatar) localStorage.setItem('texus_avatar', avatar)
-    localStorage.setItem('texus_phone', country.code + phone.replace(/\s/g, ''))
+    localStorage.setItem('texus_phone', fullPhone)
     router.push('/discussions')
   }
 
@@ -105,6 +127,7 @@ export default function AuthPage() {
 
         {step===1 && (
           <>
+            <p style={{color:'#aaa',textAlign:'center',marginBottom:'16px',fontSize:'14px'}}>Entre ton numero pour continuer</p>
             <div style={{display:'flex',gap:'8px',marginBottom:'12px'}}>
               <select
                 value={country.code}
@@ -131,10 +154,16 @@ export default function AuthPage() {
         {step===2 && (
           <>
             <div style={{background:'#1a1d2e',border:'2px solid #5b8dff',borderRadius:'12px',padding:'16px',textAlign:'center',marginBottom:'16px'}}>
-              <div style={{color:'#888',fontSize:'12px',marginBottom:'8px'}}>Ton code de vérification</div>
+              <div style={{color:'#888',fontSize:'12px',marginBottom:'8px'}}>Ton code de verification</div>
               <div style={{color:'#5b8dff',fontSize:'32px',fontWeight:700,letterSpacing:'8px'}}>{otpDisplay}</div>
-              <div style={{color:'#555',fontSize:'11px',marginTop:'8px'}}>Copie ce code et entre-le ci-dessous</div>
+              <div style={{color:'#555',fontSize:'11px',marginTop:'8px'}}>Entre ce code ci-dessous</div>
             </div>
+            {isExisting && (
+              <div style={{background:'#1a2e1a',border:'1px solid #2a4a2a',borderRadius:'10px',padding:'12px',marginBottom:'12px',textAlign:'center'}}>
+                <div style={{color:'#4caf50',fontSize:'13px'}}>Compte existant trouve !</div>
+                <div style={{color:'#888',fontSize:'12px'}}>Bienvenue {existingProfile?.username}</div>
+              </div>
+            )}
             <input
               type="text"
               value={code}
@@ -144,14 +173,14 @@ export default function AuthPage() {
               style={{width:'100%',background:'#1a1d2e',border:'1px solid #222640',borderRadius:'10px',padding:'12px',fontSize:'18px',color:'#fff',boxSizing:'border-box',textAlign:'center',letterSpacing:'4px'}}
             />
             <button onClick={verifyOtp} style={{width:'100%',background:'#5b8dff',color:'#fff',border:'none',borderRadius:'12px',padding:'13px',fontSize:'14px',fontWeight:600,cursor:'pointer',marginTop:'12px'}}>
-              Confirmer le code
+              {isExisting ? 'Se connecter' : 'Confirmer le code'}
             </button>
           </>
         )}
 
         {step===3 && (
           <>
-            <p style={{color:'#aaa',textAlign:'center',marginBottom:'16px'}}>Choisis ton nom d'utilisateur</p>
+            <p style={{color:'#aaa',textAlign:'center',marginBottom:'16px'}}>Choisis ton nom d utilisateur</p>
             <input
               type="text"
               value={username}
