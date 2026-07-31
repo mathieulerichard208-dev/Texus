@@ -12,18 +12,7 @@ const countries = [
   { code: '+227', flag: '🇳🇪', name: 'Niger' },
   { code: '+228', flag: '🇹🇬', name: 'Togo' },
   { code: '+237', flag: '🇨🇲', name: 'Cameroun' },
-  { code: '+241', flag: '🇬🇦', name: 'Gabon' },
-  { code: '+242', flag: '🇨🇬', name: 'Congo' },
-  { code: '+243', flag: '🇨🇩', name: 'RD Congo' },
-  { code: '+212', flag: '🇲🇦', name: 'Maroc' },
-  { code: '+213', flag: '🇩🇿', name: 'Algerie' },
-  { code: '+216', flag: '🇹🇳', name: 'Tunisie' },
-  { code: '+20', flag: '🇪🇬', name: 'Egypte' },
-  { code: '+254', flag: '🇰🇪', name: 'Kenya' },
-  { code: '+233', flag: '🇬🇭', name: 'Ghana' },
-  { code: '+27', flag: '🇿🇦', name: 'Afrique du Sud' },
   { code: '+33', flag: '🇫🇷', name: 'France' },
-  { code: '+32', flag: '🇧🇪', name: 'Belgique' },
   { code: '+1', flag: '🇺🇸', name: 'USA' },
   { code: '+44', flag: '🇬🇧', name: 'Royaume-Uni' },
 ]
@@ -45,23 +34,28 @@ export default function AuthPage() {
   const [existingProfile, setExistingProfile] = useState<any>(null)
 
   async function sendOtp() {
+    if (!phone.trim()) { setMessage('Entre ton numero'); return }
     setLoading(true)
     const fullPhone = country.code + phone.replace(/\s/g, '')
-    const res = await fetch('/api/send-otp', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone: fullPhone })
-    })
-    const data = await res.json()
-    if (data.success) {
-      setOtp(data.otp)
-      setOtpDisplay(data.otp)
-      setIsExisting(data.isExisting)
-      setExistingProfile(data.profile)
-      setStep(2)
-      setMessage('')
-    } else {
-      setMessage('Erreur - reessayez')
+    try {
+      const res = await fetch('/api/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: fullPhone })
+      })
+      const data = await res.json()
+      if (data.success) {
+        setOtp(data.otp)
+        setOtpDisplay(data.otp)
+        setIsExisting(data.isExisting || false)
+        setExistingProfile(data.profile || null)
+        setStep(2)
+        setMessage('')
+      } else {
+        setMessage('Erreur - reessayez')
+      }
+    } catch {
+      setMessage('Erreur reseau - reessayez')
     }
     setLoading(false)
   }
@@ -105,13 +99,13 @@ export default function AuthPage() {
 
   async function finishSignup() {
     const fullPhone = country.code + phone.replace(/\s/g, '')
-    
-    await fetch('/api/save-profile', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone: fullPhone, username, avatar })
-    })
-
+    try {
+      await fetch('/api/save-profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: fullPhone, username })
+      })
+    } catch {}
     localStorage.setItem('texus_username', username)
     if (avatar) localStorage.setItem('texus_avatar', avatar)
     localStorage.setItem('texus_phone', fullPhone)
@@ -153,17 +147,16 @@ export default function AuthPage() {
 
         {step===2 && (
           <>
-            <div style={{background:'#1a1d2e',border:'2px solid #5b8dff',borderRadius:'12px',padding:'16px',textAlign:'center',marginBottom:'16px'}}>
-              <div style={{color:'#888',fontSize:'12px',marginBottom:'8px'}}>Ton code de verification</div>
-              <div style={{color:'#5b8dff',fontSize:'32px',fontWeight:700,letterSpacing:'8px'}}>{otpDisplay}</div>
-              <div style={{color:'#555',fontSize:'11px',marginTop:'8px'}}>Entre ce code ci-dessous</div>
-            </div>
-            {isExisting && (
-              <div style={{background:'#1a2e1a',border:'1px solid #2a4a2a',borderRadius:'10px',padding:'12px',marginBottom:'12px',textAlign:'center'}}>
-                <div style={{color:'#4caf50',fontSize:'13px'}}>Compte existant trouve !</div>
-                <div style={{color:'#888',fontSize:'12px'}}>Bienvenue {existingProfile?.username}</div>
+            {isExisting && existingProfile && (
+              <div style={{background:'#1a2e1a',border:'1px solid #2a4a2a',borderRadius:'10px',padding:'12px',marginBottom:'16px',textAlign:'center'}}>
+                <div style={{color:'#4caf50',fontSize:'14px',fontWeight:600}}>Compte trouve !</div>
+                <div style={{color:'#aaa',fontSize:'13px'}}>Bienvenue {existingProfile.username} 👋</div>
               </div>
             )}
+            <div style={{background:'#1a1d2e',border:'2px solid #5b8dff',borderRadius:'12px',padding:'16px',textAlign:'center',marginBottom:'16px'}}>
+              <div style={{color:'#888',fontSize:'12px',marginBottom:'8px'}}>Ton code</div>
+              <div style={{color:'#5b8dff',fontSize:'32px',fontWeight:700,letterSpacing:'8px'}}>{otpDisplay}</div>
+            </div>
             <input
               type="text"
               value={code}
@@ -173,14 +166,17 @@ export default function AuthPage() {
               style={{width:'100%',background:'#1a1d2e',border:'1px solid #222640',borderRadius:'10px',padding:'12px',fontSize:'18px',color:'#fff',boxSizing:'border-box',textAlign:'center',letterSpacing:'4px'}}
             />
             <button onClick={verifyOtp} style={{width:'100%',background:'#5b8dff',color:'#fff',border:'none',borderRadius:'12px',padding:'13px',fontSize:'14px',fontWeight:600,cursor:'pointer',marginTop:'12px'}}>
-              {isExisting ? 'Se connecter' : 'Confirmer le code'}
+              {isExisting ? 'Se connecter' : 'Confirmer'}
+            </button>
+            <button onClick={() => setStep(1)} style={{width:'100%',background:'none',color:'#888',border:'none',padding:'10px',fontSize:'13px',cursor:'pointer',marginTop:'4px'}}>
+              Changer de numero
             </button>
           </>
         )}
 
         {step===3 && (
           <>
-            <p style={{color:'#aaa',textAlign:'center',marginBottom:'16px'}}>Choisis ton nom d utilisateur</p>
+            <p style={{color:'#aaa',textAlign:'center',marginBottom:'16px'}}>Choisis ton nom</p>
             <input
               type="text"
               value={username}
@@ -196,7 +192,7 @@ export default function AuthPage() {
 
         {step===4 && (
           <>
-            <p style={{color:'#aaa',textAlign:'center',marginBottom:'20px'}}>Ajoute une photo de profil</p>
+            <p style={{color:'#aaa',textAlign:'center',marginBottom:'20px'}}>Photo de profil (optionnel)</p>
             <div style={{display:'flex',justifyContent:'center',marginBottom:'20px'}}>
               <div onClick={() => fileInputRef.current?.click()} style={{width:'100px',height:'100px',borderRadius:'50%',background:'#1a1d2e',border:'2px dashed #333',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',overflow:'hidden'}}>
                 {avatar ? <img src={avatar} alt="avatar" style={{width:'100%',height:'100%',objectFit:'cover'}} /> : <span style={{fontSize:'32px',color:'#555'}}>📷</span>}
@@ -204,7 +200,7 @@ export default function AuthPage() {
             </div>
             <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} style={{display:'none'}} />
             <button onClick={finishSignup} style={{width:'100%',background:'#5b8dff',color:'#fff',border:'none',borderRadius:'12px',padding:'13px',fontSize:'14px',fontWeight:600,cursor:'pointer'}}>
-              {avatar ? 'Commencer' : 'Ignorer'}
+              {avatar ? 'Commencer' : 'Ignorer et commencer'}
             </button>
           </>
         )}
